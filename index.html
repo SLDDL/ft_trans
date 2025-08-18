@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Babylon.js Pong Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="renderCanvas"></canvas>
+        <div id="ui-overlay">
+            <div id="score">
+                <span id="player1-score">0</span> - <span id="player2-score">0</span>
+            </div>
+            <div id="instructions">
+                <p>Player 1: W/S keys</p>
+                <p>Player 2: Arrow Up/Down keys</p>
+                <p>Press SPACE to start/pause</p>
+            </div>
+            <div id="game-status"></div>
+        </div>
+    </div>
+    <script src="pong-game.js"></script>
+</body>
+</html>

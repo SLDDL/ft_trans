@@ -1,0 +1,17 @@
+{
+  "name": "ft-transcendence-pong",
+  "version": "1.0.0",
+  "description": "Babylon.js Pong game with Fastify backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["fastify", "babylonjs", "pong", "game"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/static": "^7.0.4",
+    "fastify": "^4.28.1"
+  }
+}

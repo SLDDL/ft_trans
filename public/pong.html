@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Game</title>
+    <link rel="stylesheet" href="/public/css/pong.css">
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body>
+    <div id="pong-game-container">
+        <canvas id="renderCanvas"></canvas>
+        <div id="game-mode-menu">
+            <h2>Pong Game</h2>
+            <div class="menu-options">
+                <button id="human-vs-ai">Player vs AI</button>
+                <button id="human-vs-human">Player vs Player</button>
+            </div>
+            <div id="ai-difficulty" style="display: none;">
+                <h3>AI Difficulty</h3>
+                <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+            </div>
+        </div>
+        <div id="ui-overlay">
+            <div id="score">
+                <span id="player1-score">0</span> - <span id="player2-score">0</span>
+            </div>
+            <div id="instructions">
+                <p><strong>Player 1:</strong> Arrow Up/Down</p>
+                <p id="player2-controls"><strong>Player 2:</strong> W/S keys</p>
+                <p><strong>SPACE:</strong> Start/Pause</p>
+                <p><strong>ESC:</strong> Back to Menu</p>
+            </div>
+            <div id="game-status"></div>
+        </div>
+    </div>
+    <script src="/public/js/pong-game.js"></script>
+</body>
+</html>
