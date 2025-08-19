@@ -1,0 +1,48 @@
+name: "🐳 Module Docker - Partie Obligatoire"
+description: "Configuration de l'environnement Docker"
+title: "[OBLIGATOIRE] Configuration Docker"
+labels: ["obligatoire", "docker", "environment"]
+assignees:
+  - SLDDL
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Objectif
+        Configurer l'environnement Docker pour le projet ft_transcendence
+        
+        **Points :** 25 points (partie obligatoire)
+        
+  - type: checkboxes
+    id: docker-tasks
+    attributes:
+      label: "📋 Tâches Docker"
+      description: "Cochez les tâches complétées"
+      options:
+        - label: "Créer un Dockerfile"
+          required: false
+        - label: "Créer un docker-compose.yml"
+          required: false
+        - label: "Configurer le lancement en une commande"
+          required: false
+        - label: "Tester le déploiement sur /goinfre ou /sgoinfre"
+          required: false
+          
+  - type: textarea
+    id: notes
+    attributes:
+      label: "📝 Notes"
+      description: "Notes sur la configuration Docker"
+      placeholder: "Commandes utilisées, problèmes rencontrés, etc."
+      
+  - type: dropdown
+    id: status
+    attributes:
+      label: "📊 Statut"
+      description: "Statut actuel du module"
+      options:
+        - "🟡 En attente"
+        - "🔵 En cours"
+        - "🟢 Terminé"
+        - "🔴 Bloqué"
+      default: 0

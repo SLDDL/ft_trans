@@ -1,0 +1,45 @@
+name: "⚡ Module Backend Framework"
+description: "Migration vers Fastify + Node.js"
+title: "[MODULE] Framework Backend - Fastify"
+labels: ["module", "major", "backend", "fastify"]
+assignees:
+  - SLDDL
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🎯 Objectif
+        Migrer le backend vers Fastify + Node.js
+        
+        **Points :** 10 points (module majeur)
+        
+  - type: checkboxes
+    id: backend-tasks
+    attributes:
+      label: "📋 Tâches Backend"
+      description: "Cochez les tâches complétées"
+      options:
+        - label: "Réécrire l'API en Fastify"
+          required: false
+        - label: "Migrer la logique métier"
+          required: false
+        - label: "Tests d'intégration"
+          required: false
+          
+  - type: textarea
+    id: api-endpoints
+    attributes:
+      label: "🔗 API Endpoints"
+      description: "Liste des endpoints développés"
+      placeholder: "/api/auth, /api/users, /api/games, etc."
+      
+  - type: dropdown
+    id: status
+    attributes:
+      label: "📊 Statut"
+      options:
+        - "🟡 En attente"
+        - "🔵 En cours" 
+        - "🟢 Terminé"
+        - "🔴 Bloqué"
+      default: 0
