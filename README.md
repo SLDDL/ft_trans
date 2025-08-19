@@ -200,15 +200,21 @@
 
 ## 📊 SUIVI DU PROJET
 
+### 🎯 Tracker Interactif GitHub
+> **Accès direct :** [https://slddl.github.io/ft_trans/tracker.html](https://slddl.github.io/ft_trans/tracker.html)
+
+### 📋 GitHub Issues Board
+> **Suivi par module :** [Issues ft_transcendence](https://github.com/SLDDL/ft_trans/issues)
+
 ### Partie obligatoire (25%)
-- [ ] Docker fonctionnel
+- [ ] [🐳 Docker fonctionnel](https://github.com/SLDDL/ft_trans/issues/new?template=01-docker-obligatoire.yml)
 - [ ] Frontend TypeScript + SPA
 - [ ] Backend sécurisé
 - [ ] Pong + Tournoi
 - [ ] Sécurité de base
 
 ### Modules choisis (75%)
-1. [ ] Framework Backend (Major)
+1. [ ] [⚡ Framework Backend](https://github.com/SLDDL/ft_trans/issues/new?template=02-module-backend.yml) (Major)
 2. [ ] User Management (Major) 
 3. [ ] Remote Players (Major)
 4. [ ] AI Opponent (Major)
@@ -217,6 +223,12 @@
 7. [ ] 3D Graphics (Major)
 
 **Total modules :** 7 majeurs = 70 points + 25 (obligatoire) = 95 points minimum
+
+### 🔗 Liens Rapides
+- 🎯 **Tracker Temps Réel :** [slddl.github.io/ft_trans/tracker.html](https://slddl.github.io/ft_trans/tracker.html)
+- 📋 **Issues Board :** [GitHub Issues](https://github.com/SLDDL/ft_trans/issues)
+- 📚 **Documentation :** [Guide d'utilisation](docs/GUIDE_UTILISATION_TRACKER.md)
+- 🚀 **Intégration GitHub :** [Setup Guide](docs/GITHUB_INTEGRATION.md)
 
 ---
 
