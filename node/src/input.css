@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom game-specific styles */
+@layer components {
+  .game-button {
+    @apply bg-gradient-to-br from-dark-navy to-medium-navy border-2 border-neon-green text-white px-8 py-4 text-xl rounded-lg cursor-pointer transition-all duration-300 uppercase font-bold hover:from-medium-navy hover:to-bright-navy hover:shadow-neon-green hover:scale-105;
+  }
+  
+  .difficulty-easy {
+    @apply border-green-400;
+  }
+  
+  .difficulty-medium {
+    @apply border-yellow-400;
+  }
+  
+  .difficulty-hard {
+    @apply border-red-400;
+  }
+  
+  .neon-text {
+    @apply text-shadow-neon;
+  }
+}
+
+/* Override body styles for the game */
+body {
+  @apply m-0 p-0 font-game bg-black overflow-hidden;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  #score {
+    @apply text-3xl top-5;
+  }
+  
+  #instructions {
+    @apply text-xs p-2;
+  }
+  
+  #game-status {
+    @apply text-2xl px-4 py-2;
+  }
+  
+  #game-mode-menu {
+    @apply p-6 mx-4;
+  }
+  
+  #game-mode-menu h2 {
+    @apply text-3xl;
+  }
+  
+  #game-mode-menu button {
+    @apply text-base px-6 py-3;
+  }
+}

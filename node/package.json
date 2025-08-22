@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "build-css": "tailwindcss -i ./src/input.css -o ./public/css/output.css --watch",
+    "build-css-prod": "tailwindcss -i ./src/input.css -o ./public/css/output.css --minify"
   },
   "keywords": ["fastify", "babylonjs", "pong", "game"],
   "author": "",
@@ -13,5 +15,8 @@
   "dependencies": {
     "@fastify/static": "^7.0.4",
     "fastify": "^4.28.1"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
   }
 }
