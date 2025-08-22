@@ -32,7 +32,8 @@ help:
 	@echo "  make status         Show status of all services"
 	@echo ""
 	@echo "Development:"
-	@echo "  make dev            Start in development mode with live reload"
+	@echo "  make dev            Start in development mode with live reload and Tailwind CSS auto-rebuild"
+	@echo "  make dev-local      Start local development without Docker (requires Node.js)"
 	@echo "  make shell-pong     Open shell in pong game container"
 	@echo "  make shell-nginx    Open shell in nginx container"
 	@echo "  make test-ssl       Test SSL certificates and endpoints"
@@ -80,8 +81,14 @@ re: fclean all
 
 # Development mode with live reload
 dev:
-	@echo "🛠️  Starting in development mode..."
-	docker-compose up --build
+	@echo "🛠️  Starting in development mode with Tailwind CSS auto-rebuild..."
+	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+
+# Local development (no Docker)
+dev-local:
+	@echo "🛠️  Starting local development mode..."
+	@echo "💡 Make sure you have Node.js and npm installed"
+	@cd node && npm install && npm run dev:full
 
 # Generate self-signed certificates using containerized approach
 ssl-localhost:
@@ -177,6 +184,10 @@ fclean:
 	rm -f ./nginx/conf.d/.server-mode 2>/dev/null || true
 	@echo "Removing backup files..."
 	rm -rf ./backups 2>/dev/null || true
+	@echo "Removing node_modules..."
+	rm -rf ./node/node_modules 2>/dev/null || true
+	@echo "Removing generated css files..."
+	rm -rf ./node/public/css/output.css 2>/dev/null || true
 	@echo "✅ Complete cleanup finished!"
 
 # Test SSL certificates (containerized)

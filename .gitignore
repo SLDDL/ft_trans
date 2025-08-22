@@ -14,3 +14,6 @@ build/
 .vscode/
 .idea/
 node/public/css
+nginx/ssl/localhost.crt
+nginx/ssl/localhost.key
+nginx/conf.d/.server-mode
