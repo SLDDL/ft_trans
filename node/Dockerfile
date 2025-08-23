@@ -17,6 +17,7 @@ COPY . .
 # Build Tailwind CSS
 RUN npm run build-css-prod
 
+
 # Create a non-root user to run the application
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001

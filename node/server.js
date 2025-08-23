@@ -8,6 +8,13 @@ fastify.register(require('@fastify/static'), {
   prefix: '/public/',
 });
 
+// Register CSS files from /tmp/css (for Docker development)
+fastify.register(require('@fastify/static'), {
+  root: '/tmp/css',
+  prefix: '/public/css/',
+  decorateReply: false
+});
+
 // Simple Pong game route
 fastify.get('/', async (request, reply) => {
   return reply.sendFile('pong.html');

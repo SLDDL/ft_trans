@@ -11,19 +11,59 @@
     <div id="pong-game-container" class="relative w-screen h-screen">
         <canvas id="renderCanvas" class="w-full h-full block outline-none"></canvas>
         
-        <div id="game-mode-menu" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-dark-navy/95 border-2 border-neon-green rounded-2xl p-8 text-center text-white z-[200] shadow-neon-green-strong md:p-8 sm:p-6 sm:mx-4">
-            <h2 class="m-0 mb-6 text-5xl text-neon-green neon-text md:text-5xl sm:text-3xl">Pong Game</h2>
-            <div class="menu-options flex flex-col gap-4 mb-4">
-                <button id="human-vs-ai" class="game-button md:text-xl md:px-8 md:py-4 sm:text-base sm:px-6 sm:py-3">Player vs AI</button>
-                <button id="human-vs-human" class="game-button md:text-xl md:px-8 md:py-4 sm:text-base sm:px-6 sm:py-3">Player vs Player</button>
+        <div id="game-mode-menu" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-dark-navy/95 border-2 border-neon-green rounded-2xl p-8 text-center text-white z-[200] shadow-neon-green-strong md:p-8 sm:p-6 sm:mx-4 max-w-md w-full">
+            <h2 class="m-0 mb-8 text-5xl text-neon-green neon-text md:text-5xl sm:text-3xl">3D PONG</h2>
+            
+            <!-- Game Mode Selection -->
+            <div id="game-mode-selection" class="mb-6">
+                <h3 class="mb-4 text-2xl text-neon-blue">Select Game Mode</h3>
+                <div class="menu-options flex flex-col gap-3">
+                    <button id="human-vs-ai" class="game-button md:text-xl md:px-8 md:py-4 sm:text-base sm:px-6 sm:py-3">Player vs AI</button>
+                    <button id="human-vs-human" class="game-button md:text-xl md:px-8 md:py-4 sm:text-base sm:px-6 sm:py-3">Player vs Player</button>
+                </div>
             </div>
-            <div id="ai-difficulty" class="hidden">
-                <h3 class="mt-6 mb-4 text-2xl text-neon-blue">AI Difficulty</h3>
-                <div class="flex gap-4 justify-center flex-wrap">
+            
+            <!-- AI Difficulty Selection -->
+            <div id="ai-difficulty" class="hidden mb-6">
+                <h3 class="mb-4 text-2xl text-neon-blue">AI Difficulty</h3>
+                <div class="flex gap-3 justify-center flex-wrap">
                     <button class="game-button difficulty-easy text-base px-6 py-3" data-difficulty="easy">Easy</button>
                     <button class="game-button difficulty-medium text-base px-6 py-3" data-difficulty="medium">Medium</button>
                     <button class="game-button difficulty-hard text-base px-6 py-3" data-difficulty="hard">Hard</button>
                 </div>
+            </div>
+            
+            <!-- Camera Selection -->
+            <div id="camera-selection" class="mb-6">
+                <h3 class="mb-4 text-2xl text-neon-blue">Camera Angle</h3>
+                <select id="camera-selector" class="w-full bg-dark-navy border-2 border-neon-green rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-neon-blue">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <!-- Start Game Button -->
+            <div id="start-game-section" class="hidden">
+                <button id="start-game-btn" class="game-button bg-neon-green/20 hover:bg-neon-green/40 border-2 border-neon-green text-neon-green font-bold text-xl px-8 py-4 w-full">
+                    START GAME
+                </button>
+            </div>
+        </div>
+        
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-dark-navy/95 border-2 border-neon-blue rounded-2xl p-8 text-center text-white z-[200] shadow-neon-blue-strong hidden max-w-md w-full md:p-8 sm:p-6 sm:mx-4">
+            <h2 class="m-0 mb-6 text-4xl text-neon-blue neon-text">GAME PAUSED</h2>
+            
+            <!-- Camera Selection in Pause -->
+            <div class="mb-6">
+                <h3 class="mb-4 text-xl text-neon-blue">Change Camera</h3>
+                <select id="pause-camera-selector" class="w-full bg-dark-navy border-2 border-neon-blue rounded-lg px-4 py-3 text-white text-base focus:outline-none focus:border-neon-green">
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="flex flex-col gap-3">
+                <button id="resume-game-btn" class="game-button bg-neon-green/20 hover:bg-neon-green/40 border-2 border-neon-green text-neon-green font-bold">Resume Game</button>
+                <button id="back-to-menu-btn" class="game-button bg-red-500/20 hover:bg-red-500/40 border-2 border-red-500 text-red-500 font-bold">Back to Menu</button>
             </div>
         </div>
         
@@ -33,10 +73,17 @@
             </div>
             
             <div id="instructions" class="absolute top-5 left-5 text-white text-sm text-shadow-game-light bg-black/50 p-4 rounded-lg md:text-sm sm:text-xs sm:p-2">
-                <p class="my-1"><strong>Player 1:</strong> Arrow Up/Down</p>
-                <p id="player2-controls" class="my-1"><strong>Player 2:</strong> W/S keys</p>
+                <p class="my-1"><strong>Player 1:</strong> <span id="player1-controls">Arrow Keys</span></p>
+                <p id="player2-controls" class="my-1"><strong>Player 2:</strong> <span id="player2-control-keys">W/S keys</span></p>
                 <p class="my-1"><strong>SPACE:</strong> Start/Pause</p>
-                <p class="my-1"><strong>ESC:</strong> Back to Menu</p>
+                <p class="my-1"><strong>ESC:</strong> Pause Menu</p>
+            </div>
+            
+            <div id="camera-controls" class="absolute top-5 right-5 text-white text-sm text-shadow-game-light bg-black/50 p-4 rounded-lg pointer-events-auto md:text-sm sm:text-xs sm:p-2">
+                <p class="mb-2 font-bold text-neon-blue">Current Camera</p>
+                <div class="text-center">
+                    <span id="camera-mode-text" class="text-neon-green font-bold">Top-Down</span>
+                </div>
             </div>
             
             <div id="game-status" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-3xl font-bold text-shadow-game text-center bg-black/70 px-8 py-4 rounded-xl md:text-3xl sm:text-2xl sm:px-4 sm:py-2"></div>

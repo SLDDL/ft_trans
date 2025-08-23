@@ -20,10 +20,10 @@ RUN addgroup -g 1001 -S nodejs && \
 
 # Change ownership of the app directory to the nodejs user
 RUN chown -R nodejs:nodejs /app
-USER nodejs
 
 # Expose the port the app runs on
 EXPOSE 3000
+
 
 # Define the command to run the application (can be overridden)
 CMD ["npm", "run", "dev:full"]

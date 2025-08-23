@@ -28,6 +28,22 @@
 /* Override body styles for the game */
 body {
   @apply m-0 p-0 font-game bg-black overflow-hidden;
+  touch-action: manipulation; /* Prevent zooming on mobile */
+}
+
+/* Ensure canvas fills the viewport properly */
+#renderCanvas {
+  @apply block outline-none;
+  width: 100vw !important;
+  height: 100vh !important;
+  touch-action: none; /* Prevent scrolling/zooming when touching canvas */
+}
+
+#pong-game-container {
+  @apply relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Responsive design for mobile */
@@ -54,5 +70,16 @@ body {
   
   #game-mode-menu button {
     @apply text-base px-6 py-3;
+  }
+}
+
+/* Portrait mode specific adjustments */
+@media (orientation: portrait) {
+  #instructions {
+    @apply top-5 left-5 text-xs p-2;
+  }
+  
+  #score {
+    @apply text-2xl top-3;
   }
 }

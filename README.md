@@ -243,6 +243,12 @@
 
 ---
 
+Sex:
+
+https://excalidraw.com/#json=ABi9dop9kr2X0_s5n8nne,l3-ccMuMSlsy4glW204pGA
+
+https://docs.google.com/spreadsheets/d/1_MjZZlSDL-Tgfgd1fPitdcxD3B8aWhUEiTtR4K5x6do/
+
 *Dernière mise à jour : Août 2025*
 
 <!-- ...existing code... -->
