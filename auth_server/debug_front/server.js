@@ -3,11 +3,50 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const PORT = 3001;
+const PORT = process.env.FRONTEND_PORT || 3001;
+const AUTH_SERVER_URL = process.env.AUTH_SERVER_URL || 'http://localhost:3000';
+
+function proxyToAuthServer(req, res) {
+    const parsedUrl = new URL(req.url, AUTH_SERVER_URL);
+    
+    const options = {
+        hostname: parsedUrl.hostname,
+        port: parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80),
+        path: parsedUrl.pathname + parsedUrl.search,
+        method: req.method,
+        headers: {
+            ...req.headers,
+            host: parsedUrl.host
+        }
+    };
+    
+    const proxyReq = http.request(options, (proxyRes) => {
+        // Copy response headers
+        res.writeHead(proxyRes.statusCode, proxyRes.headers);
+        
+        // Pipe the response
+        proxyRes.pipe(res);
+    });
+    
+    proxyReq.on('error', (err) => {
+        console.error('Proxy error:', err);
+        res.writeHead(500, { 'Content-Type': 'text/html' });
+        res.end('<h1>502 - Bad Gateway</h1><p>Auth server is not available</p>');
+    });
+    
+    // Pipe the request
+    req.pipe(proxyReq);
+}
 
 const server = http.createServer((req, res) => {
     const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
     let pathname = decodeURIComponent(parsedUrl.pathname);
+    
+    // Proxy auth-related requests to the backend auth server
+    if (pathname.startsWith('/auth/')) {
+        proxyToAuthServer(req, res);
+        return;
+    }
     
     // Default to index.html
     if (pathname === '/') {
@@ -79,14 +118,18 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
     console.log(`Frontend server running at http://localhost:${PORT}`);
+    console.log(`Proxying auth requests to: ${AUTH_SERVER_URL}`);
     console.log('OAuth test frontend is ready!');
     console.log('\nSetup instructions:');
     console.log('1. Create Discord OAuth app at https://discord.com/developers/applications');
     console.log('2. Create GitHub OAuth app at https://github.com/settings/developers');
     console.log('3. Set redirect URIs to:');
-    console.log('   Discord: http://localhost:3000/oauth/discord/callback');
-    console.log('   GitHub: http://localhost:3000/oauth/github/callback');
+    console.log(`   Discord: ${AUTH_SERVER_URL}/auth/oauth/discord/callback`);
+    console.log(`   GitHub: ${AUTH_SERVER_URL}/auth/oauth/github/callback`);
     console.log('4. Update .env file with your client IDs and secrets');
     console.log('5. Start the auth server: npm run dev');
-    console.log('6. Visit http://localhost:3001 to test OAuth');
+    console.log(`6. Visit http://localhost:${PORT} to test OAuth`);
+    console.log('\nEnvironment variables:');
+    console.log(`   FRONTEND_PORT=${PORT}`);
+    console.log(`   AUTH_SERVER_URL=${AUTH_SERVER_URL}`);
 });

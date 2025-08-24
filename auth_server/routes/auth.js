@@ -5,12 +5,12 @@ const OAuthService = require('../services/oauth');
 module.exports = async function (fastify, opts) {
   const oauthService = new OAuthService();
 
-  fastify.get('/healthcheck', async function (request, reply) {
+  fastify.get('/auth/healthcheck', async function (request, reply) {
     return { status: 'ok' }
   })
 
   // OAuth initiation - redirects to provider
-  fastify.get('/oauth/:provider', async function (request, reply) {
+  fastify.get('/auth/oauth/:provider', async function (request, reply) {
     const { provider } = request.params;
     
     try {
@@ -31,19 +31,19 @@ module.exports = async function (fastify, opts) {
   })
 
   // OAuth callback - handles provider response
-  fastify.get('/oauth/:provider/callback', async function (request, reply) {
+  fastify.get('/auth/oauth/:provider/callback', async function (request, reply) {
     const { provider } = request.params;
     const { code, state, error } = request.query;
     
     // Check if there was an OAuth error
     if (error) {
-      return reply.redirect(`${process.env.FRONTEND_URL}/?error=${error}`);
+      return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/?error=${error}`);
     }
     
     // Verify state parameter (simplified for demo)
     const storedState = request.cookies.oauth_state;
     if (!storedState || storedState !== state) {
-      return reply.redirect(`${process.env.FRONTEND_URL}/?error=invalid_state`);
+      return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/?error=invalid_state`);
     }
 
     try {
@@ -68,7 +68,7 @@ module.exports = async function (fastify, opts) {
       reply.clearCookie('oauth_state');
       
       // Redirect to frontend with token
-      return reply.redirect(`${process.env.FRONTEND_URL}/?token=${authToken}`);
+      return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/?token=${authToken}`);
     } catch (error) {
       console.error('OAuth callback error:', error);
       console.error('Error details:', {
@@ -78,12 +78,12 @@ module.exports = async function (fastify, opts) {
         hasCode: !!code,
         hasState: !!state
       });
-      return reply.redirect(`${process.env.FRONTEND_URL}/?error=oauth_failed`);
+      return reply.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3001'}/?error=oauth_failed`);
     }
   })
 
   // Token validation endpoint
-  fastify.get('/validate', async function (request, reply) {
+  fastify.get('/auth/validate', async function (request, reply) {
     const authHeader = request.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -101,7 +101,7 @@ module.exports = async function (fastify, opts) {
   })
 
   // Get current user info
-  fastify.get('/me', async function (request, reply) {
+  fastify.get('/auth/me', async function (request, reply) {
     const authHeader = request.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -119,7 +119,7 @@ module.exports = async function (fastify, opts) {
   })
 
   // Logout endpoint
-  fastify.post('/logout', async function (request, reply) {
+  fastify.post('/auth/logout', async function (request, reply) {
     const authHeader = request.headers.authorization;
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -158,7 +158,7 @@ module.exports = async function (fastify, opts) {
   })
 
   // Manual token revocation endpoint
-  fastify.post('/revoke', async function (request, reply) {
+  fastify.post('/auth/revoke', async function (request, reply) {
     const authHeader = request.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -39,7 +39,7 @@ class OAuthService {
       throw new Error(`Provider ${provider} not supported`);
     }
 
-    const redirectUri = `${process.env.BACKEND_URL}/oauth/${provider}/callback`;
+    const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/oauth/${provider}/callback`;
     
     const params = new URLSearchParams({
       client_id: config.clientId,
@@ -58,7 +58,7 @@ class OAuthService {
       throw new Error(`Provider ${provider} not supported`);
     }
 
-    const redirectUri = `${process.env.BACKEND_URL}/oauth/${provider}/callback`;
+    const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/oauth/${provider}/callback`;
     
     const tokenData = {
       client_id: config.clientId,

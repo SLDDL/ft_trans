@@ -12,7 +12,11 @@ const options = {}
 module.exports = async function (fastify, opts) {
   // Register CORS for frontend communication
   await fastify.register(require('@fastify/cors'), {
-    origin: [process.env.FRONTEND_URL || 'http://localhost:3001'],
+    origin: [
+      process.env.FRONTEND_URL || 'http://localhost:3001',
+      // Allow additional origins if specified
+      ...(process.env.ADDITIONAL_ORIGINS ? process.env.ADDITIONAL_ORIGINS.split(',') : [])
+    ],
     credentials: true
   });
 

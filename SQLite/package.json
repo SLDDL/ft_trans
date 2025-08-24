@@ -1,0 +1,15 @@
+{
+  "name": "sqlite-query-service",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": { 
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "fastify": "^5.5.0",
+    "pino-pretty": "^11.2.2"
+  }
+}

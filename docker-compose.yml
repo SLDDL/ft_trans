@@ -70,6 +70,28 @@ services:
     networks:
       - transcendence-network
 
+  sqlite:
+    build:
+      context: ./SQLite
+      dockerfile: Dockerfile
+    container_name: ft_transcendence_sqlite
+    environment:
+      - API_TOKEN=${SQLITE_API_TOKEN:-secure-random-token-change-me}
+      - DB_PATH=/data/app.db
+      - PORT=7000
+      - HOST=0.0.0.0
+    volumes:
+      - sqlite_data:/data
+    restart: unless-stopped
+    networks:
+      - transcendence-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
   nginx:
     image: nginx:alpine
     container_name: ft_transcendence_nginx
@@ -124,6 +146,7 @@ services:
 volumes:
   certbot_certs:
   certbot_www:
+  sqlite_data:
 
 networks:
   transcendence-network:
