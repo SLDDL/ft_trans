@@ -17,3 +17,4 @@ node/public/css/output.css
 nginx/ssl/localhost.crt
 nginx/ssl/localhost.key
 nginx/conf.d/.server-mode
+app.db
