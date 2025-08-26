@@ -3,7 +3,8 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 class OAuthService {
-  constructor() {
+  constructor(userService) {
+    this.userService = userService;
     this.providers = {
       discord: {
         authUrl: 'https://discord.com/api/oauth2/authorize',
@@ -39,7 +40,8 @@ class OAuthService {
       throw new Error(`Provider ${provider} not supported`);
     }
 
-    const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/oauth/${provider}/callback`;
+    // Use external URL for OAuth callbacks (Discord needs to reach this)
+    const redirectUri = `${process.env.OAUTH_CALLBACK_URL || 'https://localhost:8443'}/auth/oauth/${provider}/callback`;
     
     const params = new URLSearchParams({
       client_id: config.clientId,
@@ -58,7 +60,7 @@ class OAuthService {
       throw new Error(`Provider ${provider} not supported`);
     }
 
-    const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3000'}/auth/oauth/${provider}/callback`;
+    const redirectUri = `${process.env.OAUTH_CALLBACK_URL || 'https://localhost:8443'}/auth/oauth/${provider}/callback`;
     
     const tokenData = {
       client_id: config.clientId,
@@ -184,47 +186,26 @@ class OAuthService {
   }
 
   generateJWT(user) {
-    const payload = {
-      id: user.id || `${user.provider}_${user.providerId}`,
-      provider: user.provider,
-      providerId: user.providerId,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar
-    };
-
-    return jwt.sign(payload, process.env.JWT_SECRET, { 
-      expiresIn: '24h',
-      issuer: 'auth-server'
-    });
+    return this.userService.generateJWT(user);
   }
 
   verifyJWT(token) {
-    try {
-      return jwt.verify(token, process.env.JWT_SECRET);
-    } catch (error) {
-      throw new Error('Invalid token');
-    }
+    return this.userService.verifyJWT(token);
   }
 
-  // Simple in-memory user storage (replace with database in production)
-  createOrUpdateUser(userInfo) {
-    const userId = `${userInfo.provider}_${userInfo.providerId}`;
-    
-    // In production, this would be a database operation
-    const user = {
-      id: userId,
-      provider: userInfo.provider,
-      providerId: userInfo.providerId,
-      username: userInfo.username,
-      email: userInfo.email,
-      avatar: userInfo.avatar,
-      createdAt: new Date(),
-      lastLogin: new Date()
-    };
+  // Check if provider account exists and get associated user
+  getUserByProvider(provider, providerId) {
+    return this.userService.getUserByProvider(provider, providerId);
+  }
 
-    console.log('User created/updated:', user);
-    return user;
+  // Link provider to existing user (for linking page)
+  linkProviderToUser(userId, providerData) {
+    return this.userService.linkProvider(userId, providerData);
+  }
+
+  // Check if provider is already linked
+  isProviderLinked(provider, providerId) {
+    return this.userService.isProviderLinked(provider, providerId);
   }
 
   // Store tokens for later revocation

@@ -14,6 +14,8 @@ module.exports = async function (fastify, opts) {
   await fastify.register(require('@fastify/cors'), {
     origin: [
       process.env.FRONTEND_URL || 'http://localhost:3001',
+      'http://localhost:8080',
+      'https://localhost:8443',
       // Allow additional origins if specified
       ...(process.env.ADDITIONAL_ORIGINS ? process.env.ADDITIONAL_ORIGINS.split(',') : [])
     ],

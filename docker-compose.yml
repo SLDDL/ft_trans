@@ -1,5 +1,4 @@
 services:
-  # IP detection and SSL setup service
   ip-detector:
     image: alpine:latest
     container_name: ft_transcendence_ip_detector
@@ -54,21 +53,55 @@ services:
         fi
       '
 
-  pong-game:
+  # pong-game:
+  #   build:
+  #     context: ./node
+  #     dockerfile: Dockerfile
+  #   container_name: ft_transcendence
+  #   environment:
+  #     - NODE_ENV=production
+  #     - PORT=3000
+  #     - HOST=0.0.0.0
+  #   volumes:
+  #     - ./node:/app
+  #     - /app/node_modules
+  #   restart: unless-stopped
+  #   networks:
+  #     - transcendence-network
+
+  auth_server:
     build:
-      context: ./node
+      context: ./auth_server
       dockerfile: Dockerfile
-    container_name: ft_transcendence
+    container_name: ft_transcendence_auth_server
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - FRONTEND_PORT=3001
       - HOST=0.0.0.0
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-me-in-production}
+      - SQLITE_API_TOKEN=${SQLITE_API_TOKEN:-secure-random-token-change-me}
+      - FRONTEND_URL=https://localhost:8443
+      - BACKEND_URL=http://auth_server:3000
+      - AUTH_SERVER_URL=http://auth_server:3000
+      - OAUTH_CALLBACK_URL=https://localhost:8443
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
     volumes:
-      - ./node:/app
+      - ./auth_server:/app
       - /app/node_modules
     restart: unless-stopped
     networks:
       - transcendence-network
+    # No ports exposed externally - only accessible via nginx proxy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:3000/auth/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   sqlite:
     build:
@@ -110,8 +143,10 @@ services:
         condition: service_completed_successfully
       ssl-generator:
         condition: service_completed_successfully
-      pong-game:
-        condition: service_started
+      auth_server:
+        condition: service_healthy
+      # pong-game:
+      #   condition: service_started
     restart: unless-stopped
     networks:
       - transcendence-network

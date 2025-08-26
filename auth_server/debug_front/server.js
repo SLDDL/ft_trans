@@ -3,8 +3,9 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const PORT = process.env.FRONTEND_PORT || 3001;
-const AUTH_SERVER_URL = process.env.AUTH_SERVER_URL || 'http://localhost:3000';
+const FRONTEND_PORT = process.env.FRONTEND_PORT || 3001;
+const BACKEND_PORT = process.env.PORT || 3000;
+const AUTH_SERVER_URL = process.env.AUTH_SERVER_URL || `http://localhost:${BACKEND_PORT}`;
 
 function proxyToAuthServer(req, res) {
     const parsedUrl = new URL(req.url, AUTH_SERVER_URL);
@@ -116,8 +117,8 @@ const server = http.createServer((req, res) => {
 });
 
 
-server.listen(PORT, () => {
-    console.log(`Frontend server running at http://localhost:${PORT}`);
+server.listen(FRONTEND_PORT, '0.0.0.0', () => {
+    console.log(`Frontend server running at http://0.0.0.0:${FRONTEND_PORT}`);
     console.log(`Proxying auth requests to: ${AUTH_SERVER_URL}`);
     console.log('OAuth test frontend is ready!');
     console.log('\nSetup instructions:');
@@ -128,8 +129,9 @@ server.listen(PORT, () => {
     console.log(`   GitHub: ${AUTH_SERVER_URL}/auth/oauth/github/callback`);
     console.log('4. Update .env file with your client IDs and secrets');
     console.log('5. Start the auth server: npm run dev');
-    console.log(`6. Visit http://localhost:${PORT} to test OAuth`);
+    console.log(`6. Visit http://localhost:${FRONTEND_PORT} to test OAuth`);
     console.log('\nEnvironment variables:');
-    console.log(`   FRONTEND_PORT=${PORT}`);
+    console.log(`   FRONTEND_PORT=${FRONTEND_PORT}`);
+    console.log(`   BACKEND_PORT=${BACKEND_PORT}`);
     console.log(`   AUTH_SERVER_URL=${AUTH_SERVER_URL}`);
 });

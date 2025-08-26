@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2FA Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .hidden { display: none; }
+        input, button { margin: 5px 0; padding: 10px; }
+        .qr-code { margin: 10px 0; }
+        .backup-codes { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>2FA Testing Interface</h1>
+    
+    <!-- Login Section -->
+    <div class="section">
+        <h2>Login</h2>
+        <input type="email" id="loginEmail" placeholder="Email" value="test@example.com">
+        <input type="password" id="loginPassword" placeholder="Password" value="password123">
+        <input type="text" id="loginTwoFA" placeholder="2FA Code (if enabled)" class="hidden">
+        <button onclick="login()">Login</button>
+        <div id="loginResult"></div>
+    </div>
+
+    <!-- 2FA Setup Section -->
+    <div class="section">
+        <h2>2FA Setup</h2>
+        <button onclick="setup2FA()">Setup 2FA</button>
+        <div id="qrSection" class="hidden">
+            <h3>Scan QR Code with your authenticator app:</h3>
+            <div class="qr-code">
+                <img id="qrCode" src="" alt="QR Code">
+            </div>
+            <p>Manual entry key: <code id="manualKey"></code></p>
+            <input type="text" id="verifyCode" placeholder="Enter code from authenticator">
+            <button onclick="verify2FASetup()">Verify & Enable 2FA</button>
+        </div>
+        <div id="setupResult"></div>
+    </div>
+
+    <!-- 2FA Status Section -->
+    <div class="section">
+        <h2>2FA Status</h2>
+        <button onclick="get2FAStatus()">Check Status</button>
+        <div id="statusResult"></div>
+    </div>
+
+    <!-- 2FA Management Section -->
+    <div class="section">
+        <h2>2FA Management</h2>
+        <div>
+            <h3>Disable 2FA</h3>
+            <input type="password" id="disablePassword" placeholder="Current Password">
+            <input type="text" id="disableTwoFA" placeholder="2FA Code">
+            <button onclick="disable2FA()">Disable 2FA</button>
+        </div>
+        <div>
+            <h3>Regenerate Backup Codes</h3>
+            <input type="password" id="regenPassword" placeholder="Current Password">
+            <input type="text" id="regenTwoFA" placeholder="2FA Code">
+            <button onclick="regenerateBackupCodes()">Regenerate Backup Codes</button>
+        </div>
+        <div id="managementResult"></div>
+    </div>
+
+    <script>
+        let currentToken = localStorage.getItem('authToken');
+        let tempToken = null;
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = isError ? 'error' : 'success';
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const twoFactorCode = document.getElementById('loginTwoFA').value;
+
+            const body = { email, password };
+            if (twoFactorCode) body.twoFactorCode = twoFactorCode;
+
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (data.requiresTwoFactor) {
+                    tempToken = data.tempToken;
+                    document.getElementById('loginTwoFA').classList.remove('hidden');
+                    showResult('loginResult', 'Please enter your 2FA code above');
+                } else if (data.token) {
+                    currentToken = data.token;
+                    localStorage.setItem('authToken', currentToken);
+                    showResult('loginResult', 'Login successful!');
+                    document.getElementById('loginTwoFA').classList.add('hidden');
+                } else {
+                    showResult('loginResult', data.error || 'Login failed', true);
+                }
+            } catch (error) {
+                showResult('loginResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function verify2FALogin() {
+            const twoFactorCode = document.getElementById('loginTwoFA').value;
+
+            try {
+                const response = await fetch('/auth/2fa/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tempToken, twoFactorCode })
+                });
+
+                const data = await response.json();
+
+                if (data.token) {
+                    currentToken = data.token;
+                    localStorage.setItem('authToken', currentToken);
+                    showResult('loginResult', 'Login successful with 2FA!');
+                    document.getElementById('loginTwoFA').classList.add('hidden');
+                } else {
+                    showResult('loginResult', data.error || '2FA verification failed', true);
+                }
+            } catch (error) {
+                showResult('loginResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function setup2FA() {
+            if (!currentToken) {
+                showResult('setupResult', 'Please login first', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/auth/2fa/setup', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json' 
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.qrCode) {
+                    document.getElementById('qrCode').src = data.qrCode;
+                    document.getElementById('manualKey').textContent = data.secret;
+                    document.getElementById('qrSection').classList.remove('hidden');
+                    showResult('setupResult', 'Scan the QR code and enter the verification code');
+                } else {
+                    showResult('setupResult', data.error || 'Setup failed', true);
+                }
+            } catch (error) {
+                showResult('setupResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function verify2FASetup() {
+            const code = document.getElementById('verifyCode').value;
+
+            try {
+                const response = await fetch('/auth/2fa/verify-setup', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ token: code })
+                });
+
+                const data = await response.json();
+
+                if (data.enabled) {
+                    let result = `<div class="success">${data.message}</div>`;
+                    result += '<div class="backup-codes"><h4>Backup Codes (save these!):</h4>';
+                    data.backupCodes.forEach(code => {
+                        result += `<div><code>${code}</code></div>`;
+                    });
+                    result += '</div>';
+                    showResult('setupResult', result);
+                    document.getElementById('qrSection').classList.add('hidden');
+                } else {
+                    showResult('setupResult', data.error || 'Verification failed', true);
+                }
+            } catch (error) {
+                showResult('setupResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function get2FAStatus() {
+            if (!currentToken) {
+                showResult('statusResult', 'Please login first', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/auth/2fa/status', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const status = data.enabled ? 'Enabled' : 'Disabled';
+                    showResult('statusResult', 
+                        `2FA Status: ${status}<br>Backup codes remaining: ${data.backupCodesRemaining}`);
+                } else {
+                    showResult('statusResult', data.error || 'Failed to get status', true);
+                }
+            } catch (error) {
+                showResult('statusResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function disable2FA() {
+            const currentPassword = document.getElementById('disablePassword').value;
+            const twoFactorCode = document.getElementById('disableTwoFA').value;
+
+            try {
+                const response = await fetch('/auth/2fa/disable', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ currentPassword, twoFactorCode })
+                });
+
+                const data = await response.json();
+                showResult('managementResult', data.message || data.error, !response.ok);
+            } catch (error) {
+                showResult('managementResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        async function regenerateBackupCodes() {
+            const currentPassword = document.getElementById('regenPassword').value;
+            const twoFactorCode = document.getElementById('regenTwoFA').value;
+
+            try {
+                const response = await fetch('/auth/2fa/regenerate-backup-codes', {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ currentPassword, twoFactorCode })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let result = `<div class="success">${data.message}</div>`;
+                    result += '<div class="backup-codes"><h4>New Backup Codes:</h4>';
+                    data.backupCodes.forEach(code => {
+                        result += `<div><code>${code}</code></div>`;
+                    });
+                    result += '</div>';
+                    showResult('managementResult', result);
+                } else {
+                    showResult('managementResult', data.error, true);
+                }
+            } catch (error) {
+                showResult('managementResult', 'Network error: ' + error.message, true);
+            }
+        }
+
+        // Auto-verify 2FA when typing in login field
+        document.getElementById('loginTwoFA').addEventListener('input', function() {
+            if (this.value.length === 6 && tempToken) {
+                verify2FALogin();
+            }
+        });
+    </script>
+</body>
+</html>

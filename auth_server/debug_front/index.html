@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OAuth Test Frontend</title>
+    <title>Authentication System</title>
     <style>
         * {
             margin: 0;
@@ -18,6 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
         
         .container {
@@ -27,20 +28,116 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 2rem;
+            margin-bottom: 1rem;
             font-size: 2rem;
         }
         
-        .auth-buttons {
+        h2 {
+            color: #555;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .tab-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
             margin-bottom: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 4px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            display: none;
+            text-align: left;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input[type="email"], 
+        input[type="password"], 
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="email"]:focus, 
+        input[type="password"]:focus, 
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .oauth-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e9ecef;
         }
         
         .oauth-btn {
@@ -48,7 +145,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            padding: 15px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -56,6 +153,7 @@
             text-decoration: none;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 1rem;
         }
         
         .oauth-btn:hover {
@@ -73,12 +171,16 @@
             color: white;
         }
         
-        .user-info {
-            background: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .user-dashboard {
             display: none;
+            text-align: left;
+        }
+        
+        .user-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
         }
         
         .user-avatar {
@@ -88,40 +190,90 @@
             margin-bottom: 1rem;
         }
         
-        .logout-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
+        .user-info-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .linked-providers {
+            margin-bottom: 2rem;
+        }
+        
+        .provider-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .provider-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        .btn-small {
+            padding: 6px 12px;
             font-size: 14px;
         }
         
-        .logout-btn:hover {
-            background-color: #c82333;
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .error-message, .success-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
         }
         
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
         }
         
         .success-message {
             background-color: #d4edda;
             color: #155724;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            display: none;
         }
         
         .loading {
             display: none;
+            text-align: center;
             margin: 1rem 0;
         }
         
@@ -132,7 +284,7 @@
             width: 40px;
             height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 1rem;
         }
         
         @keyframes spin {
@@ -140,78 +292,558 @@
             100% { transform: rotate(360deg); }
         }
         
-        .token-display {
+        .link-section {
+            display: none;
+            text-align: center;
+        }
+        
+        .link-provider-info {
+            background: #e3f2fd;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .provider-details {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .link-form {
+            text-align: left;
+        }
+        
+        /* 2FA Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .modal-header h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .qr-code-container {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+        
+        .qr-code-image {
+            max-width: 200px;
+            height: auto;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .manual-key {
             background: #f8f9fa;
             padding: 1rem;
-            border-radius: 5px;
+            border-radius: 8px;
             font-family: monospace;
-            font-size: 12px;
             word-break: break-all;
+            border: 1px solid #e9ecef;
+            margin: 1rem 0;
+        }
+        
+        .backup-codes {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .backup-codes h4 {
+            color: #856404;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .backup-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .backup-code {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            text-align: center;
+            border: 1px solid #f0ad4e;
+        }
+        
+        .backup-codes-warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 1rem;
+            color: #721c24;
+            font-size: 0.9rem;
+        }
+        
+        .modal-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .btn-close {
+            background: #6c757d;
+            color: white;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-close:hover {
+            background: #5a6268;
+        }
+        
+        .temp-token-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #0c5460;
+        }
+        
+        .two-factor-verify {
+            display: none;
+            background: #e2e3e5;
+            border-radius: 8px;
+            padding: 1rem;
             margin-top: 1rem;
-            max-height: 100px;
-            overflow-y: auto;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>OAuth Test Frontend</h1>
-        
-        <div class="error-message" id="errorMessage"></div>
-        <div class="success-message" id="successMessage"></div>
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Processing authentication...</p>
-        </div>
-        
-        <div class="auth-section" id="authSection">
-            <p style="margin-bottom: 2rem; color: #666;">
-                Test OAuth integration with Discord and GitHub
-            </p>
+        <!-- Authentication Section -->
+        <div id="authSection">
+            <h1>Authentication System</h1>
             
-            <div class="auth-buttons">
-                <a href="/auth/oauth/discord" class="oauth-btn discord-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
-                    </svg>
-                    Login with Discord
-                </a>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+                <button class="tab-btn" onclick="switchTab('register')">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="form-section active">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <div class="form-group" id="twoFactorGroup" style="display: none;">
+                        <label for="loginTwoFactor">2FA Code</label>
+                        <input type="text" id="loginTwoFactor" placeholder="Enter 6-digit code or backup code" maxlength="8">
+                        <small style="color: #666;">Enter your 2FA code from your authenticator app or an 8-digit backup code</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="loginBtn">Login</button>
+                </form>
                 
-                <a href="/auth/oauth/github" class="oauth-btn github-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                    </svg>
-                    Login with GitHub
-                </a>
+                <div class="oauth-section">
+                    <p style="margin-bottom: 1rem; color: #666; text-align: center;">
+                        Or login with:
+                    </p>
+                    <a href="/auth/oauth/discord" class="oauth-btn discord-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                        </svg>
+                        Discord
+                    </a>
+                    
+                    <a href="/auth/oauth/github" class="oauth-btn github-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerForm" class="form-section">
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerUsername">Username</label>
+                        <input type="text" id="registerUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" required minlength="8">
+                        <small style="color: #666;">Minimum 8 characters</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                
+                <p style="text-align: center; margin-top: 1rem; color: #666;">
+                    Note: You must create an account first before linking OAuth providers.
+                </p>
             </div>
         </div>
         
-        <div class="user-info" id="userInfo">
-            <img id="userAvatar" class="user-avatar" src="" alt="User Avatar">
-            <h3 id="userName"></h3>
-            <p id="userEmail"></p>
-            <p><strong>Provider:</strong> <span id="userProvider"></span></p>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+        <!-- User Dashboard -->
+        <div id="userDashboard" class="user-dashboard">
+            <div class="user-header">
+                <h2>Account Dashboard</h2>
+                <p style="color: #666;">Manage your account and linked providers</p>
+            </div>
             
-            <div class="token-display" id="tokenDisplay"></div>
+            <div class="user-info-grid">
+                <div class="info-card">
+                    <div class="info-label">Username</div>
+                    <div class="info-value" id="dashUsername">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="dashEmail">-</div>
+                </div>
+                                <div class="info-card">
+                    <div class="info-label">Member Since</div>
+                    <div class="info-value" id="dashMemberSince">-</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">2FA Status</div>
+                    <div class="info-value" id="dash2FAStatus">-</div>
+                </div>
+            </div>
+            
+            <!-- 2FA Management Section -->
+            <div class="linked-providers">
+                <h3 style="margin-bottom: 1rem;">Two-Factor Authentication</h3>
+                <div id="twoFactorSection">
+                    <div id="twoFactorDisabled" style="display: none;">
+                        <p style="color: #666; margin-bottom: 1rem;">Two-factor authentication is not enabled. Enable it to add an extra layer of security to your account.</p>
+                        <button class="btn btn-primary" onclick="setup2FA()">Enable 2FA</button>
+                    </div>
+                    
+                    <div id="twoFactorEnabled" style="display: none;">
+                        <p style="color: #28a745; margin-bottom: 1rem;">✓ Two-factor authentication is enabled</p>
+                        <div style="margin-bottom: 1rem;">
+                            <strong>Backup codes remaining:</strong> <span id="backupCodesCount">-</span>
+                        </div>
+                        <button class="btn" style="background: #fd7e14; color: white; margin-right: 0.5rem;" onclick="regenerateBackupCodes()">Regenerate Backup Codes</button>
+                        <button class="btn btn-danger" onclick="disable2FA()">Disable 2FA</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="linked-providers">
+                <h3 style="margin-bottom: 1rem;">Linked Providers</h3>
+                <div id="providersList">
+                    <p style="color: #666; font-style: italic;">No providers linked</p>
+                </div>
+                <div style="margin-top: 1rem;">
+                                        <a href="#" onclick="linkProvider('discord')" class="oauth-btn discord-btn" style="margin-right: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419-.0189 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/>
+                        </svg>
+                        Link Discord
+                    </a>
+                    <a href="#" onclick="linkProvider('github')" class="oauth-btn github-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                        Link GitHub
+                    </a>
+                </div>
+            </div>
+            
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+        
+        <!-- Provider Linking Section -->
+        <div id="linkSection" class="link-section">
+            <h2>Link Provider Account</h2>
+            
+            <div class="error-message" id="linkErrorMessage"></div>
+            <div class="success-message" id="linkSuccessMessage"></div>
+            
+            <div class="link-provider-info">
+                <h3>Link this account:</h3>
+                <div class="provider-details">
+                    <img id="linkProviderAvatar" class="provider-avatar" src="" alt="Provider Avatar">
+                    <div>
+                        <div><strong id="linkProviderName">-</strong> on <strong id="linkProviderType">-</strong></div>
+                        <div style="color: #666; font-size: 0.9rem;" id="linkProviderEmail">-</div>
+                    </div>
+                </div>
+                <p style="color: #666; font-size: 0.9rem;">
+                    Enter your account credentials to link this provider account.
+                </p>
+            </div>
+            
+            <form onsubmit="handleLinkProvider(event)" class="link-form">
+                <div class="form-group">
+                    <label for="linkEmail">Your Email</label>
+                    <input type="email" id="linkEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="linkPassword">Your Password</label>
+                    <input type="password" id="linkPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Link Account</button>
+                <button type="button" class="btn" style="background: #6c757d; color: white;" onclick="cancelLink()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2FA Setup Modal -->
+    <div id="setup2FAModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Setup Two-Factor Authentication</h3>
+                <p style="color: #666;">Follow these steps to enable 2FA on your account</p>
+            </div>
+            
+            <div id="setup2FAStep1">
+                <h4>Step 1: Scan QR Code</h4>
+                <p>Use your authenticator app (Google Authenticator, Authy, etc.) to scan this QR code:</p>
+                
+                <div class="qr-code-container">
+                    <img id="qrCodeImage" class="qr-code-image" src="" alt="2FA QR Code">
+                </div>
+                
+                <p><strong>Manual Entry:</strong></p>
+                <div class="manual-key">
+                    <strong>Secret Key:</strong> <span id="manualEntryKey">-</span>
+                </div>
+                
+                <button class="btn btn-primary" onclick="proceedToVerification()">I've Added the Account</button>
+                <button class="btn btn-close" onclick="closeSetup2FAModal()">Cancel</button>
+            </div>
+            
+            <div id="setup2FAStep2" style="display: none;">
+                <h4>Step 2: Verify Setup</h4>
+                <p>Enter the 6-digit code from your authenticator app to verify the setup:</p>
+                
+                <div class="form-group">
+                    <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.2em;">
+                </div>
+                
+                <button class="btn btn-primary" onclick="verify2FASetup()">Verify & Enable 2FA</button>
+                <button class="btn btn-close" onclick="backToStep1()">Back</button>
+            </div>
+            
+            <div id="setup2FAStep3" style="display: none;">
+                <h4>2FA Enabled Successfully!</h4>
+                <p style="color: #28a745; text-align: center; margin-bottom: 1rem;">✓ Two-factor authentication has been enabled on your account.</p>
+                
+                <div class="backup-codes">
+                    <h4>⚠️ Save Your Backup Codes</h4>
+                    <p style="margin-bottom: 1rem;">These backup codes can be used to access your account if you lose your phone. Save them in a secure location!</p>
+                    
+                    <div class="backup-codes-grid" id="backupCodesGrid">
+                        <!-- Backup codes will be inserted here -->
+                    </div>
+                    
+                    <div class="backup-codes-warning">
+                        <strong>Important:</strong> Each backup code can only be used once. Store these codes safely!
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="finishSetup2FA()">I've Saved My Backup Codes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Verification Modal (for login) -->
+    <div id="verify2FAModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Two-Factor Authentication Required</h3>
+                <p style="color: #666;">Enter your 2FA code to complete login</p>
+            </div>
+            
+            <div class="temp-token-info">
+                <strong>Security Notice:</strong> You have 10 minutes to complete 2FA verification.
+            </div>
+            
+            <div class="form-group">
+                <label for="loginVerificationCode">Enter 2FA Code</label>
+                <input type="text" id="loginVerificationCode" placeholder="6-digit code or 8-digit backup code" maxlength="8" style="text-align: center; font-size: 1.2rem; letter-spacing: 0.1em;">
+                <small style="color: #666;">Enter your authenticator code or use a backup code</small>
+            </div>
+            
+            <button class="btn btn-primary" onclick="verifyLoginCode()">Verify & Login</button>
+            <button class="btn btn-close" onclick="closeVerify2FAModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Disable 2FA Modal -->
+    <div id="disable2FAModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Disable Two-Factor Authentication</h3>
+                <p style="color: #dc3545;">⚠️ This will remove 2FA protection from your account</p>
+            </div>
+            
+            <form onsubmit="confirmDisable2FA(event)">
+                <div class="form-group">
+                    <label for="disablePassword">Current Password</label>
+                    <input type="password" id="disablePassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="disableTwoFactorCode">2FA Code</label>
+                    <input type="text" id="disableTwoFactorCode" placeholder="Enter current 2FA code" maxlength="8" required>
+                </div>
+                
+                <button type="submit" class="btn btn-danger">Disable 2FA</button>
+                <button type="button" class="btn btn-close" onclick="closeDisable2FAModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Regenerate Backup Codes Modal -->
+    <div id="regenerateBackupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Regenerate Backup Codes</h3>
+                <p style="color: #fd7e14;">⚠️ This will invalidate all existing backup codes</p>
+            </div>
+            
+            <form onsubmit="confirmRegenerateBackupCodes(event)">
+                <div class="form-group">
+                    <label for="regenPassword">Current Password</label>
+                    <input type="password" id="regenPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="regenTwoFactorCode">2FA Code</label>
+                    <input type="text" id="regenTwoFactorCode" placeholder="Enter current 2FA code" maxlength="6" required>
+                </div>
+                
+                <button type="submit" class="btn" style="background: #fd7e14; color: white;">Generate New Codes</button>
+                <button type="button" class="btn btn-close" onclick="closeRegenerateBackupModal()">Cancel</button>
+            </form>
+            
+            <div id="newBackupCodes" style="display: none;">
+                <div class="backup-codes">
+                    <h4>🔄 New Backup Codes Generated</h4>
+                    <p style="margin-bottom: 1rem;">Your old backup codes have been invalidated. Save these new codes securely!</p>
+                    
+                    <div class="backup-codes-grid" id="newBackupCodesGrid">
+                        <!-- New backup codes will be inserted here -->
+                    </div>
+                    
+                    <div class="backup-codes-warning">
+                        <strong>Important:</strong> Your previous backup codes are no longer valid. Save these new codes!
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="finishRegenerateBackup()">I've Saved the New Codes</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const API_BASE = '/auth';
+        let currentLinkToken = null;
+        let tempToken = null;
+        let currentSetupData = null;
         
-        // Check for authentication result on page load
+        // Initialize page
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const token = urlParams.get('token');
+            const linkToken = urlParams.get('token');
             const error = urlParams.get('error');
+            const linkedProvider = urlParams.get('linked');
+            const message = urlParams.get('message');
+            const requiresTwoFactor = urlParams.get('requiresTwoFactor');
+            const tempTokenParam = urlParams.get('tempToken');
             
-            if (token) {
+            // Check if we're on the link page
+            if (window.location.pathname.includes('/link')) {
+                if (linkToken) {
+                    handleLinkPage(linkToken);
+                } else {
+                    showError('Invalid link token');
+                }
+                return;
+            }
+            
+            if (requiresTwoFactor && tempTokenParam) {
+                tempToken = tempTokenParam;
+                showVerify2FAModal();
+            } else if (token) {
                 handleAuthSuccess(token);
+                // Show linking success message if present
+                if (linkedProvider) {
+                    setTimeout(() => {
+                        showSuccess(`${linkedProvider} account linked successfully!`);
+                    }, 1500);
+                }
             } else if (error) {
-                handleAuthError(error);
+                if (message) {
+                    handleAuthError(error, decodeURIComponent(message));
+                } else {
+                    handleAuthError(error);
+                }
             } else {
-                // Check if we have a stored token
+                // Check for stored token
                 const storedToken = localStorage.getItem('authToken');
                 if (storedToken) {
                     verifyToken(storedToken);
@@ -219,10 +851,97 @@
             }
             
             // Clean URL
-            if (token || error) {
+            if (token || error || linkedProvider || requiresTwoFactor) {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
+        
+        function switchTab(tab) {
+            // Update buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.form-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(tab + 'Form').classList.add('active');
+            
+            hideMessages();
+        }
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+            showLoading(true);
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const twoFactorCode = document.getElementById('loginTwoFactor').value;
+            
+            const body = { email, password };
+            if (twoFactorCode) {
+                body.twoFactorCode = twoFactorCode;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    if (data.requiresTwoFactor) {
+                        tempToken = data.tempToken;
+                        document.getElementById('twoFactorGroup').style.display = 'block';
+                        document.getElementById('loginBtn').textContent = 'Verify 2FA';
+                        showSuccess('Please enter your 2FA code');
+                        document.getElementById('loginTwoFactor').focus();
+                    } else {
+                        handleAuthSuccess(data.token);
+                    }
+                } else {
+                    showError(data.error || 'Login failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function handleRegister(event) {
+            event.preventDefault();
+            showLoading(true);
+            
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    handleAuthSuccess(data.token);
+                } else {
+                    showError(data.error || 'Registration failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
         
         function handleAuthSuccess(token) {
             localStorage.setItem('authToken', token);
@@ -232,22 +951,82 @@
             }, 1000);
         }
         
-        function handleAuthError(error) {
-            let message = 'Authentication failed';
-            switch(error) {
-                case 'invalid_state':
-                    message = 'Invalid state parameter. Please try again.';
-                    break;
-                case 'oauth_failed':
-                    message = 'OAuth authentication failed. Please try again.';
-                    break;
-                case 'access_denied':
-                    message = 'Access denied by user.';
-                    break;
-                default:
-                    message = `Authentication error: ${error}`;
+        function handleAuthError(error, customMessage = null) {
+            let message = customMessage || 'Authentication failed';
+            
+            if (!customMessage) {
+                switch(error) {
+                    case 'invalid_state':
+                        message = 'Invalid state parameter. Please try again.';
+                        break;
+                    case 'oauth_failed':
+                        message = 'OAuth authentication failed. Please try again.';
+                        break;
+                    case 'access_denied':
+                        message = 'Access denied by user.';
+                        break;
+                    case 'provider_already_linked':
+                        message = 'This provider account is already linked to another user.';
+                        break;
+                    case 'registration_required':
+                        message = 'Please create an account first before using OAuth providers.';
+                        break;
+                    case 'link_failed':
+                        message = 'Failed to link provider account. Please try again.';
+                        break;
+                    default:
+                        message = `Authentication error: ${error}`;
+                }
             }
             showError(message);
+        }
+        
+        // Function to handle provider linking for authenticated users
+        function linkProvider(provider) {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                showError('You must be logged in to link provider accounts.');
+                return;
+            }
+            
+            // Create a form to send the token in the request
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = `/auth/oauth/${provider}`;
+            
+            // Create a hidden input to send the authorization header
+            // Since we can't set headers in a form, we'll use a different approach
+            // We'll open the URL and rely on the cookie-based authentication check
+            
+            // For now, let's use a simple redirect and modify the backend to check for existing session
+            fetch(`/auth/oauth/${provider}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                redirect: 'manual'
+            }).then(response => {
+                if (response.type === 'opaqueredirect') {
+                    // Follow the redirect
+                    window.location.href = response.url;
+                } else {
+                    // Handle the redirect manually
+                    return response.text().then(text => {
+                        // Try to extract redirect URL from response
+                        const urlMatch = text.match(/href="([^"]+)"/);
+                        if (urlMatch) {
+                            window.location.href = urlMatch[1];
+                        } else {
+                            // Fallback: direct redirect
+                            window.location.href = `/auth/oauth/${provider}`;
+                        }
+                    });
+                }
+            }).catch(error => {
+                console.error('Provider linking error:', error);
+                // Fallback: try direct link with token in URL
+                window.location.href = `/auth/oauth/${provider}?token=${encodeURIComponent(token)}`;
+            });
         }
         
         async function verifyToken(token) {
@@ -265,7 +1044,6 @@
                     showError('Session expired. Please login again.');
                 }
             } catch (error) {
-                console.error('Token verification failed:', error);
                 localStorage.removeItem('authToken');
                 showError('Failed to verify session.');
             }
@@ -275,20 +1053,27 @@
             showLoading(true);
             
             try {
-                const response = await fetch(`${API_BASE}/me`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                const [userResponse, providersResponse, twoFactorResponse] = await Promise.all([
+                    fetch(`${API_BASE}/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE}/linked-providers`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE}/2fa/status`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    displayUserInfo(data.user, token);
+                if (userResponse.ok && providersResponse.ok && twoFactorResponse.ok) {
+                    const userData = await userResponse.json();
+                    const providersData = await providersResponse.json();
+                    const twoFactorData = await twoFactorResponse.json();
+                    displayUserDashboard(userData.user, providersData.providers, twoFactorData);
                 } else {
-                    throw new Error('Failed to fetch user info');
+                    throw new Error('Failed to fetch user data');
                 }
             } catch (error) {
-                console.error('Failed to fetch user info:', error);
                 showError('Failed to load user information.');
                 localStorage.removeItem('authToken');
             } finally {
@@ -296,26 +1081,170 @@
             }
         }
         
-        function displayUserInfo(user, token) {
-            document.getElementById('userName').textContent = user.username || 'N/A';
-            document.getElementById('userEmail').textContent = user.email || 'N/A';
-            document.getElementById('userProvider').textContent = user.provider || 'N/A';
+        function displayUserDashboard(user, providers, twoFactorStatus) {
+            // Update user info
+            document.getElementById('dashUsername').textContent = user.username;
+            document.getElementById('dashEmail').textContent = user.email;
+            document.getElementById('dashMemberSince').textContent = new Date(user.createdAt).toLocaleDateString();
             
-            const avatar = document.getElementById('userAvatar');
-            if (user.avatar) {
-                avatar.src = user.avatar;
-                avatar.style.display = 'block';
+            // Update 2FA status
+            const twoFactorStatusText = twoFactorStatus.enabled ? 
+                `✓ Enabled (${twoFactorStatus.backupCodesRemaining} backup codes)` : 
+                '✗ Disabled';
+            document.getElementById('dash2FAStatus').textContent = twoFactorStatusText;
+            document.getElementById('dash2FAStatus').style.color = twoFactorStatus.enabled ? '#28a745' : '#dc3545';
+            
+            // Show appropriate 2FA section
+            if (twoFactorStatus.enabled) {
+                document.getElementById('twoFactorDisabled').style.display = 'none';
+                document.getElementById('twoFactorEnabled').style.display = 'block';
+                document.getElementById('backupCodesCount').textContent = twoFactorStatus.backupCodesRemaining;
             } else {
-                avatar.style.display = 'none';
+                document.getElementById('twoFactorDisabled').style.display = 'block';
+                document.getElementById('twoFactorEnabled').style.display = 'none';
             }
             
-            // Show token (first 50 chars)
-            document.getElementById('tokenDisplay').textContent = `Token: ${token.substring(0, 50)}...`;
+            // Update providers list
+            const providersList = document.getElementById('providersList');
+            if (providers && providers.length > 0) {
+                providersList.innerHTML = providers.map(provider => `
+                    <div class="provider-item">
+                        <div class="provider-info">
+                            ${provider.avatar ? `<img src="${provider.avatar}" class="provider-avatar" alt="${provider.provider} avatar">` : ''}
+                            <div>
+                                <div><strong>${provider.username}</strong> on ${provider.provider}</div>
+                                <div style="color: #666; font-size: 0.9rem;">Linked ${new Date(provider.linkedAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-small" onclick="unlinkProvider('${provider.provider}')">Unlink</button>
+                    </div>
+                `).join('');
+            } else {
+                providersList.innerHTML = '<p style="color: #666; font-style: italic;">No providers linked</p>';
+            }
             
+            // Show dashboard
             document.getElementById('authSection').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'block';
-            
+            document.getElementById('userDashboard').style.display = 'block';
+            document.getElementById('linkSection').style.display = 'none';
             hideMessages();
+        }
+        
+        async function handleLinkPage(linkToken) {
+            currentLinkToken = linkToken;
+            showLoading(true);
+            
+            try {
+                const response = await fetch(`${API_BASE}/link-info`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ linkToken })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Display provider info
+                    document.getElementById('linkProviderType').textContent = data.provider;
+                    document.getElementById('linkProviderName').textContent = data.username;
+                    document.getElementById('linkProviderEmail').textContent = data.email || 'No email';
+                    
+                    if (data.avatar) {
+                        document.getElementById('linkProviderAvatar').src = data.avatar;
+                        document.getElementById('linkProviderAvatar').style.display = 'block';
+                    } else {
+                        document.getElementById('linkProviderAvatar').style.display = 'none';
+                    }
+                    
+                    // Show link section
+                    document.getElementById('authSection').style.display = 'none';
+                    document.getElementById('userDashboard').style.display = 'none';
+                    document.getElementById('linkSection').style.display = 'block';
+                } else {
+                    showLinkError(data.error || 'Invalid link token');
+                }
+            } catch (error) {
+                showLinkError('Failed to load provider information');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function handleLinkProvider(event) {
+            event.preventDefault();
+            showLoading(true);
+            
+            const email = document.getElementById('linkEmail').value;
+            const password = document.getElementById('linkPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/link-provider`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        linkToken: currentLinkToken,
+                        email,
+                        password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    showLinkSuccess(data.message);
+                    setTimeout(() => {
+                        fetchUserInfo(data.token);
+                    }, 2000);
+                } else {
+                    showLinkError(data.error || 'Failed to link provider');
+                }
+            } catch (error) {
+                showLinkError('Network error. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        async function unlinkProvider(provider) {
+            if (!confirm(`Are you sure you want to unlink your ${provider} account?`)) {
+                return;
+            }
+            
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/unlink-provider`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ provider })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(data.message);
+                    setTimeout(() => {
+                        fetchUserInfo(token);
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Failed to unlink provider');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        function cancelLink() {
+            window.location.href = '/';
         }
         
         async function logout() {
@@ -336,8 +1265,14 @@
             
             localStorage.removeItem('authToken');
             
+            // Reset to login page
             document.getElementById('authSection').style.display = 'block';
-            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('userDashboard').style.display = 'none';
+            document.getElementById('linkSection').style.display = 'none';
+            
+            // Reset forms
+            document.querySelectorAll('form').forEach(form => form.reset());
+            switchTab('login');
             
             showSuccess('Logged out successfully!');
             setTimeout(hideMessages, 3000);
@@ -357,6 +1292,20 @@
             document.getElementById('errorMessage').style.display = 'none';
         }
         
+        function showLinkError(message) {
+            const errorEl = document.getElementById('linkErrorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('linkSuccessMessage').style.display = 'none';
+        }
+        
+        function showLinkSuccess(message) {
+            const successEl = document.getElementById('linkSuccessMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            document.getElementById('linkErrorMessage').style.display = 'none';
+        }
+        
         function hideMessages() {
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
@@ -365,6 +1314,280 @@
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
         }
+        
+        // ===== 2FA FUNCTIONS =====
+        
+        async function setup2FA() {
+            console.log('setup2FA() called');
+            const token = localStorage.getItem('authToken');
+            console.log('Token:', token ? 'exists' : 'missing');
+            if (!token) {
+                showError('You must be logged in to enable 2FA');
+                return;
+            }
+            
+            try {
+                console.log('Making request to:', `${API_BASE}/2fa/setup`);
+                const response = await fetch(`${API_BASE}/2fa/setup`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok) {
+                    currentSetupData = data;
+                    document.getElementById('qrCodeImage').src = data.qrCode;
+                    document.getElementById('manualEntryKey').textContent = data.secret;
+                    showSetup2FAModal();
+                } else {
+                    showError(data.error || '2FA setup failed');
+                }
+            } catch (error) {
+                console.error('setup2FA error:', error);
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        function proceedToVerification() {
+            document.getElementById('setup2FAStep1').style.display = 'none';
+            document.getElementById('setup2FAStep2').style.display = 'block';
+            document.getElementById('verificationCode').focus();
+        }
+        
+        function backToStep1() {
+            document.getElementById('setup2FAStep2').style.display = 'none';
+            document.getElementById('setup2FAStep1').style.display = 'block';
+        }
+        
+        async function verify2FASetup() {
+            const code = document.getElementById('verificationCode').value;
+            const token = localStorage.getItem('authToken');
+            
+            if (!code || !token) {
+                showError('Please enter the verification code');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/2fa/verify-setup`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ token: code })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show backup codes
+                    const backupCodesGrid = document.getElementById('backupCodesGrid');
+                    backupCodesGrid.innerHTML = data.backupCodes.map(code => 
+                        `<div class="backup-code">${code}</div>`
+                    ).join('');
+                    
+                    document.getElementById('setup2FAStep2').style.display = 'none';
+                    document.getElementById('setup2FAStep3').style.display = 'block';
+                } else {
+                    showError(data.error || 'Verification failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        function finishSetup2FA() {
+            closeSetup2FAModal();
+            showSuccess('2FA has been enabled successfully!');
+            // Refresh user info
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                setTimeout(() => fetchUserInfo(token), 1000);
+            }
+        }
+        
+        async function disable2FA() {
+            showDisable2FAModal();
+        }
+        
+        async function confirmDisable2FA(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('authToken');
+            const currentPassword = document.getElementById('disablePassword').value;
+            const twoFactorCode = document.getElementById('disableTwoFactorCode').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/2fa/disable`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ currentPassword, twoFactorCode })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    closeDisable2FAModal();
+                    showSuccess('2FA has been disabled');
+                    // Refresh user info
+                    setTimeout(() => fetchUserInfo(token), 1000);
+                } else {
+                    showError(data.error || 'Failed to disable 2FA');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        async function regenerateBackupCodes() {
+            showRegenerateBackupModal();
+        }
+        
+        async function confirmRegenerateBackupCodes(event) {
+            event.preventDefault();
+            const token = localStorage.getItem('authToken');
+            const currentPassword = document.getElementById('regenPassword').value;
+            const twoFactorCode = document.getElementById('regenTwoFactorCode').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/2fa/regenerate-backup-codes`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ currentPassword, twoFactorCode })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Show new backup codes
+                    const newBackupCodesGrid = document.getElementById('newBackupCodesGrid');
+                    newBackupCodesGrid.innerHTML = data.backupCodes.map(code => 
+                        `<div class="backup-code">${code}</div>`
+                    ).join('');
+                    
+                    // Hide form and show codes
+                    event.target.style.display = 'none';
+                    document.getElementById('newBackupCodes').style.display = 'block';
+                } else {
+                    showError(data.error || 'Failed to regenerate backup codes');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        function finishRegenerateBackup() {
+            closeRegenerateBackupModal();
+            showSuccess('New backup codes generated successfully!');
+            // Refresh user info
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                setTimeout(() => fetchUserInfo(token), 1000);
+            }
+        }
+        
+        async function verifyLoginCode() {
+            const code = document.getElementById('loginVerificationCode').value;
+            
+            if (!code || !tempToken) {
+                showError('Please enter your 2FA code');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/2fa/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tempToken, twoFactorCode: code })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    closeVerify2FAModal();
+                    handleAuthSuccess(data.token);
+                } else {
+                    showError(data.error || '2FA verification failed');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            }
+        }
+        
+        // Modal functions
+        function showSetup2FAModal() {
+            document.getElementById('setup2FAModal').style.display = 'block';
+            // Reset to step 1
+            document.getElementById('setup2FAStep1').style.display = 'block';
+            document.getElementById('setup2FAStep2').style.display = 'none';
+            document.getElementById('setup2FAStep3').style.display = 'none';
+            document.getElementById('verificationCode').value = '';
+        }
+        
+        function closeSetup2FAModal() {
+            document.getElementById('setup2FAModal').style.display = 'none';
+        }
+        
+        function showVerify2FAModal() {
+            document.getElementById('verify2FAModal').style.display = 'block';
+            document.getElementById('loginVerificationCode').focus();
+        }
+        
+        function closeVerify2FAModal() {
+            document.getElementById('verify2FAModal').style.display = 'none';
+            tempToken = null;
+        }
+        
+        function showDisable2FAModal() {
+            document.getElementById('disable2FAModal').style.display = 'block';
+            document.getElementById('disablePassword').value = '';
+            document.getElementById('disableTwoFactorCode').value = '';
+        }
+        
+        function closeDisable2FAModal() {
+            document.getElementById('disable2FAModal').style.display = 'none';
+        }
+        
+        function showRegenerateBackupModal() {
+            document.getElementById('regenerateBackupModal').style.display = 'block';
+            document.getElementById('regenPassword').value = '';
+            document.getElementById('regenTwoFactorCode').value = '';
+            // Reset the modal
+            document.querySelector('#regenerateBackupModal form').style.display = 'block';
+            document.getElementById('newBackupCodes').style.display = 'none';
+        }
+        
+        function closeRegenerateBackupModal() {
+            document.getElementById('regenerateBackupModal').style.display = 'none';
+        }
+        
+        // Auto-submit when 6 digits entered for verification
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginVerificationCode').addEventListener('input', function() {
+                if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
+                    setTimeout(verifyLoginCode, 500);
+                }
+            });
+            
+            document.getElementById('verificationCode').addEventListener('input', function() {
+                if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
+                    setTimeout(verify2FASetup, 500);
+                }
+            });
+        });
     </script>
 </body>
 </html>
